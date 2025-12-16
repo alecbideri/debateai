@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebateAI - Master Your Debate Skills</title>
+    <meta name="description" content="AI-powered debate training platform that analyzes your body language and argumentation skills in real-time">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🎯</div>
+                <span class="logo-text">Debate<span class="accent">AI</span></span>
+            </div>
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel - Video & Controls -->
+            <section class="video-section">
+                <div class="video-container">
+                    <video id="videoPreview" autoplay muted playsinline></video>
+                    <div class="video-overlay" id="videoOverlay">
+                        <div class="overlay-content">
+                            <div class="camera-icon">📹</div>
+                            <p>Click "Start Session" to enable camera</p>
+                        </div>
+                    </div>
+                    <div class="video-indicators">
+                        <div class="indicator mic-indicator" id="micIndicator">
+                            <span class="indicator-icon">🎙️</span>
+                            <span class="indicator-label">Mic</span>
+                        </div>
+                        <div class="indicator cam-indicator" id="camIndicator">
+                            <span class="indicator-icon">📷</span>
+                            <span class="indicator-label">Camera</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <button class="btn btn-primary" id="startBtn">
+                        <span class="btn-icon">▶️</span>
+                        <span>Start Session</span>
+                    </button>
+                    <button class="btn btn-danger" id="stopBtn" disabled>
+                        <span class="btn-icon">⏹️</span>
+                        <span>End Session</span>
+                    </button>
+                </div>
+                
+                <!-- Turn Control -->
+                <div class="turn-control" id="turnControl" style="display: none;">
+                    <button class="btn btn-accent" id="restMyCaseBtn">
+                        <span class="btn-icon">⚖️</span>
+                        <span>I Rest My Case</span>
+                    </button>
+                    <p class="turn-hint">Click or say "I rest my case" when you're done speaking</p>
+                </div>
+
+                <!-- Mode Selection -->
+                <div class="mode-selector">
+                    <h3>Debate Mode</h3>
+                    <div class="mode-options">
+                        <label class="mode-option">
+                            <input type="radio" name="debateMode" value="coach" checked>
+                            <div class="mode-card">
+                                <span class="mode-icon">🧑‍🏫</span>
+                                <span class="mode-name">Coach</span>
+                                <span class="mode-desc">Get real-time feedback</span>
+                            </div>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="debateMode" value="opponent">
+                            <div class="mode-card">
+                                <span class="mode-icon">⚔️</span>
+                                <span class="mode-name">Opponent</span>
+                                <span class="mode-desc">Debate against AI</span>
+                            </div>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="debateMode" value="practice">
+                            <div class="mode-card">
+                                <span class="mode-icon">📝</span>
+                                <span class="mode-name">Practice</span>
+                                <span class="mode-desc">Answer questions</span>
+                            </div>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="debateMode" value="challenge">
+                            <div class="mode-card">
+                                <span class="mode-icon">🎲</span>
+                                <span class="mode-name">Challenge</span>
+                                <span class="mode-desc">Random topics</span>
+                            </div>
+                        </label>
+                        <label class="mode-option duel-mode">
+                            <input type="radio" name="debateMode" value="duel">
+                            <div class="mode-card mode-card-duel">
+                                <span class="mode-icon">🥊</span>
+                                <span class="mode-name">Duel</span>
+                                <span class="mode-desc">2-Person Battle</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Duel Mode Controls (hidden by default) -->
+                <div class="duel-controls" id="duelControls" style="display: none;">
+                    <div class="player-indicators">
+                        <div class="player-badge player-1" id="player1Badge">
+                            <span class="player-icon">🔵</span>
+                            <span class="player-name">Player 1</span>
+                        </div>
+                        <div class="vs-badge">VS</div>
+                        <div class="player-badge player-2" id="player2Badge">
+                            <span class="player-icon">🔴</span>
+                            <span class="player-name">Player 2</span>
+                        </div>
+                    </div>
+                    <div class="timer-container" id="timerContainer">
+                        <div class="timer-display" id="timerDisplay">30</div>
+                        <div class="timer-label">seconds remaining</div>
+                        <div class="timer-progress">
+                            <div class="timer-progress-bar" id="timerProgressBar"></div>
+                        </div>
+                    </div>
+                    <div class="turn-indicator" id="turnIndicator">
+                        <span id="currentPlayerText">Waiting to start...</span>
+                    </div>
+                    <button class="btn btn-accent" id="myTurnDoneBtn" style="display: none;">
+                        <span class="btn-icon">✅</span>
+                        <span>I'm Done Speaking</span>
+                    </button>
+                </div>
+
+                <!-- Topic Input -->
+                <div class="topic-section">
+                    <h3>Debate Topic</h3>
+                    <div class="topic-input-wrapper">
+                        <input type="text" id="topicInput" class="topic-input" placeholder="Enter a debate topic or leave empty for suggestions...">
+                        <button class="btn btn-secondary btn-small" id="suggestTopicBtn">
+                            <span>💡 Suggest</span>
+                        </button>
+                    </div>
+                    <div class="suggested-topics" id="suggestedTopics">
+                        <span class="topic-chip" data-topic="Should artificial intelligence be regulated by governments?">AI Regulation</span>
+                        <span class="topic-chip" data-topic="Is social media beneficial or harmful to society?">Social Media</span>
+                        <span class="topic-chip" data-topic="Should college education be free for everyone?">Free Education</span>
+                        <span class="topic-chip" data-topic="Is remote work better than office work?">Remote Work</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel - Analysis & Chat -->
+            <section class="analysis-section">
+                <!-- Analysis Dashboard -->
+                <div class="analysis-dashboard">
+                    <h3>Live Analysis</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <div class="analysis-icon">🧍</div>
+                            <div class="analysis-info">
+                                <span class="analysis-label">Posture</span>
+                                <span class="analysis-value" id="postureScore">--</span>
+                            </div>
+                            <div class="analysis-bar">
+                                <div class="analysis-bar-fill" id="postureBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-icon">👁️</div>
+                            <div class="analysis-info">
+                                <span class="analysis-label">Eye Contact</span>
+                                <span class="analysis-value" id="eyeContactScore">--</span>
+                            </div>
+                            <div class="analysis-bar">
+                                <div class="analysis-bar-fill" id="eyeContactBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-icon">🤲</div>
+                            <div class="analysis-info">
+                                <span class="analysis-label">Gestures</span>
+                                <span class="analysis-value" id="gesturesScore">--</span>
+                            </div>
+                            <div class="analysis-bar">
+                                <div class="analysis-bar-fill" id="gesturesBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-icon">😊</div>
+                            <div class="analysis-info">
+                                <span class="analysis-label">Confidence</span>
+                                <span class="analysis-value" id="confidenceScore">--</span>
+                            </div>
+                            <div class="analysis-bar">
+                                <div class="analysis-bar-fill" id="confidenceBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Response / Chat -->
+                <div class="chat-section">
+                    <h3>AI Feedback</h3>
+                    <div class="chat-container" id="chatContainer">
+                        <div class="chat-message system">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <p>Welcome to DebateAI! I'm your AI debate coach. Select a mode, choose a topic, and click "Start Session" to begin. I'll analyze your body language and provide real-time feedback on your debate skills.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-speaking-indicator" id="aiSpeakingIndicator">
+                        <div class="speaking-waves">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="speaking-text">AI is speaking...</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by Gemini Live API • Real-time AI Analysis</p>
+        </footer>
+    </div>
+
+    <!-- Hidden canvas for video capture -->
+    <canvas id="videoCanvas" style="display: none;"></canvas>
+
+    <!-- Audio context for playback -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
